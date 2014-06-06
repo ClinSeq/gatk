@@ -49,7 +49,7 @@ I usually skip compiling Queue:
 
     mvn verify -P\!queue
     
-The resulting jar file is `java -jar target/GenomeAnalysisTK.jar`
+The resulting jar file is `target/GenomeAnalysisTK.jar`
 
 ## See also
 
