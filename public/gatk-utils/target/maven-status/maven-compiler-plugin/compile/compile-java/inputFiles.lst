@@ -1,0 +1,5 @@
+/Users/dankle/IdeaProjects/gatk-klevebring-public/public/gatk-utils/src/main/java/org/broadinstitute/gatk/utils/exceptions/GATKException.java
+/Users/dankle/IdeaProjects/gatk-klevebring-public/public/gatk-utils/src/main/java/org/broadinstitute/gatk/utils/SimpleTimer.java
+/Users/dankle/IdeaProjects/gatk-klevebring-public/public/gatk-utils/src/main/java/org/broadinstitute/gatk/utils/exceptions/ReviewedGATKException.java
+/Users/dankle/IdeaProjects/gatk-klevebring-public/public/gatk-utils/src/main/java/org/broadinstitute/gatk/utils/GenomeLoc.java
+/Users/dankle/IdeaProjects/gatk-klevebring-public/public/gatk-utils/src/main/java/org/broadinstitute/gatk/utils/HasGenomeLocation.java
