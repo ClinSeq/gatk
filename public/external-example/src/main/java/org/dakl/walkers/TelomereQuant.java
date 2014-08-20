@@ -93,8 +93,10 @@ public class TelomereQuant extends ReadWalker<Integer, Long> implements NanoSche
         int telomereCount = countSubstring(readseq, teloseq_f) + countSubstring(readseq, teloseq_r);
         boolean hasTelomere4Seq = readseq.toUpperCase().contains( teloseq_f_rep ) || readseq.toUpperCase().contains(teloseq_r_rep);
 
-        if( hasTelomere4Seq ) tdResults.get(sample).incrementTelomereReadCount();
-        tdResults.get(sample).incrementTelomereSeqCount(telomereCount);
+        if( hasTelomere4Seq ){
+            tdResults.get(sample).incrementTelomereReadCount();
+            tdResults.get(sample).incrementTelomereSeqCount(telomereCount);
+        }
         tdResults.get(sample).incrementTotalBases(readLength);
 
         if( hasTelomere4Seq ) return 0;
@@ -116,7 +118,7 @@ public class TelomereQuant extends ReadWalker<Integer, Long> implements NanoSche
             out.println(sample + "\t" +
                     tdResults.get(sample).getTotalReadCount() + "\t" +
                     tdResults.get(sample).getTotalBases()     + "\t" +
-                    tdResults.get(sample).getTotalReadCount() + "\t" +
+                    tdResults.get(sample).getTelomereReadCount() + "\t" +
                     tdResults.get(sample).getTotalTelomereSequenceCount() );
         }
     }
