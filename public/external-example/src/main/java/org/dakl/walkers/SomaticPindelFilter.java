@@ -20,7 +20,7 @@ import java.util.*;
 
 /**
  *
- * This walker performs filtering of pindel output based on quality and Fisher's exact test (BH corrected).
+ * Filters pindel output based on coverage and Fisher's exact test (BH corrected).
  *
  * 1. Quality filters
  *   Tumor read depth > 25 and < 1000 (changeable from cli)

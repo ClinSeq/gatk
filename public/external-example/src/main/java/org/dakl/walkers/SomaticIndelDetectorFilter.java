@@ -20,7 +20,7 @@ import java.util.*;
 
 /**
  *
- * Filter Indels from IndelGenotyperV2 (SomaticIndelDetector) based on Fisher's exact test.
+ * Filter Indels from IndelGenotyperV2 (SomaticIndelDetector) based on coverage and Fisher's exact test (BH corrected).
  *
  * This walker reads output from IndelGenotyperV2 and filters based on Fisher's exact test
  * adjusted for multiple testing using the Benjamini Hochberg method for controlling FDR
