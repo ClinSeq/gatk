@@ -13,7 +13,7 @@ import org.broadinstitute.gatk.utils.variant.GATKVCFUtils;
 import java.util.*;
 
 /**
- * Created by dankle on 20/08/14.
+ * Selects pathogenic variants from a clinvar VCF.
  */
 public class SelectPathogenicVariants extends RodWalker<Integer, Integer> {
 
