@@ -127,7 +127,7 @@ The walker allows for multiple samples to be given within a single BAM file, and
 
 ### TL;DR
 
-    -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -I mybam.bam -o outfile.txt
+    -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -R reference.fa -I mybam.bam -o outfile.txt
 
 ### Parameters
 
