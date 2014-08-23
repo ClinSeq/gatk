@@ -2,6 +2,9 @@
 
 This is my public version of the (MIT licensed) GATK source tree with added custom walkers.
 
+[![Build Status](https://travis-ci.org/dakl/gatk.svg?branch=master)](https://travis-ci.org/dakl/gatk.svg?branch=master)
+
+
 ## SomaticPindelFilter
 
 Filtering of variants from reported from pindel. Performs a Fisher's Exact test for each variants and Benjamini-Hochberg adjusts all p-values. Prints variants with adjusted p < cutoff (settable).
