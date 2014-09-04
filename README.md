@@ -1,7 +1,8 @@
 # The Genome Analysis Toolkit
 
-This is my public version of the (MIT licensed) GATK source tree with added custom walkers.
+[![Build Status](https://travis-ci.org/dakl/gatk.svg?branch=master)](https://travis-ci.org/dakl/gatk.svg?branch=master)
 
+This is my public version of the (MIT licensed) GATK source tree with added custom walkers.
 
 
 
@@ -133,7 +134,11 @@ The walker allows for multiple samples to be given within a single BAM file, and
 
 ### TL;DR
 
+<<<<<<< HEAD
     java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -I mybam.bam -o outfile.txt
+=======
+    -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -R reference.fa -I mybam.bam -o outfile.txt
+>>>>>>> FETCH_HEAD
 
 ### Parameters
 
