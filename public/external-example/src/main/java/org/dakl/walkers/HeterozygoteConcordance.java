@@ -26,28 +26,28 @@ import java.util.*;
 @By(DataSource.REFERENCE)
 public class HeterozygoteConcordance extends RodWalker<Integer, Integer> {
 
-    @Output(doc="File to which output should be written")
+    @Output(doc="File to which output should be written (default stdout)")
     private PrintStream out;
 
-    @Argument(fullName ="VCFSample", shortName = "sid", doc="Sample ID from which to get HZ calls (must be present in the VCF)", required=true)
+    @Argument(fullName ="VCFSample", shortName = "sid", doc="Sample ID from which to get HZ calls. Must be present in the VCF. (required)", required=true)
     protected  String vcfSample;
 
     /*
     * Optional parameters
     * */
-    @Argument(fullName="mindepth", shortName="md", doc="Minimum BAM depth of a position to be considered", required=false)
+    @Argument(fullName="mindepth", shortName="md", doc="Minimum BAM depth of a position to be considered (default 30)", required=false)
     protected int minDepth = 30;
 
     /*
     * Upper limit over which homozygote alt's are called
     */
-    @Argument(fullName="upper", shortName="up", doc="Upper limit over which hom alt GTs are called", required=false)
+    @Argument(fullName="upper", shortName="up", doc="Upper limit over which hom alt GTs are called (default .9)", required=false)
     protected double upperLimit = 0.9;
 
     /**
     * Lower limit under which homozygote ref's are called
     */
-    @Argument(fullName="lower", shortName="lo", doc="Lower limit over which hom ref GTs are called", required=false)
+    @Argument(fullName="lower", shortName="lo", doc="Lower limit over which hom ref GTs are called (default .1)", required=false)
     protected double lowerLimit = 0.1;
 
     @ArgumentCollection
