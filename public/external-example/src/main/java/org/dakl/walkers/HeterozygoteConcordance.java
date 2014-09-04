@@ -67,12 +67,17 @@ public class HeterozygoteConcordance extends RodWalker<Integer, Integer> {
         ReadBackedPileup pileup = alignmentContext.getBasePileup().getPileupWithoutMappingQualityZeroReads();
         if ( pileup.depthOfCoverage() < minDepth ){ return 0; }
 
+        logger.info("\n");
+
         for ( VariantContext vc : VCs ){
             if(! vc.getSampleNames().contains(vcfSample)){
                 continue;
             }
             // only handle biallelic SNPs, no indels or others
             if( ! vc.isBiallelic() ){
+                continue;
+            }
+            if( ! vc.isSNP() ){
                 continue;
             }
 
@@ -83,25 +88,33 @@ public class HeterozygoteConcordance extends RodWalker<Integer, Integer> {
                 }
                 ArrayList<String> bases = basesToStrings(pileup.getPileupForSample(bamSample).getBases());
 
-                Integer refCount = indexOfAll( vc.getReference().toString(), bases ).size();
+                Integer refCount = indexOfAll( vc.getReference().getBaseString(), bases ).size();
                 Integer altcount = indexOfAll( vc.getAltAlleleWithHighestAlleleCount().toString(), bases).size();
 
                 // increment total
                 results.get(bamSample).incrementTotalSnps();
+                logger.info(alignmentContext.getLocation() + " " + vc.getReference().getBaseString() + "/" + vc.getAltAlleleWithHighestAlleleCount().toString());
+                logger.info(bases + "ishet="+vc.getGenotype(vcfSample).isHet() + " GT=" + vc.getGenotype(vcfSample).getGenotypeString());
 
-                if( vc.getNAlleles() == 2){ // increment if hz
+                if( vc.getGenotype(vcfSample).isHet() ){ // increment if hz
+                    logger.info("ishet");
                     results.get(bamSample).incrementHzSnps();
-                } else {
-                    continue;
-                }
-
-                // increment concordant nbr if alt allele has read support within set limits
-                Double alleleFraction = altcount.doubleValue() / (altcount.doubleValue() + refCount.doubleValue());
-                if( alleleFraction > lowerLimit && alleleFraction < upperLimit ){
-                    results.get(bamSample).incrementConcordantHzSnps();
+                    // increment concordant nbr if alt allele has read support within set limits
+                    Double alleleFraction = ((double)altcount.doubleValue()) / (altcount + refCount);
+                    logger.info(alleleFraction + "(" + altcount + "/(" + altcount + "+" + refCount + ")");
+                    if( alleleFraction > lowerLimit && alleleFraction < upperLimit ){
+                        results.get(bamSample).incrementConcordantHzSnps();
+                    }
                 }
 
             }
+            logger.info("VARIANTSSAMPLE\tREADSSAMPLE\tTOTAL_SNPS\tHZ_SNP_COUNT\tCONCORDANT_HZ_SNP_COUNT\tCONCORDANT_HZ_SNP_FRACTION");
+            for( String sample : results.keySet() ){
+                logger.info( results.get(sample).toString() );
+            }
+            logger.info("\n");
+            logger.info("\n");
+
         }
 
         return 1;
