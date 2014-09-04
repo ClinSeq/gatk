@@ -67,8 +67,6 @@ public class HeterozygoteConcordance extends RodWalker<Integer, Integer> {
         ReadBackedPileup pileup = alignmentContext.getBasePileup().getPileupWithoutMappingQualityZeroReads();
         if ( pileup.depthOfCoverage() < minDepth ){ return 0; }
 
-        logger.info("\n");
-
         for ( VariantContext vc : VCs ){
             if(! vc.getSampleNames().contains(vcfSample)){
                 continue;
@@ -93,27 +91,17 @@ public class HeterozygoteConcordance extends RodWalker<Integer, Integer> {
 
                 // increment total
                 results.get(bamSample).incrementTotalSnps();
-                logger.info(alignmentContext.getLocation() + " " + vc.getReference().getBaseString() + "/" + vc.getAltAlleleWithHighestAlleleCount().toString());
-                logger.info(bases + "ishet="+vc.getGenotype(vcfSample).isHet() + " GT=" + vc.getGenotype(vcfSample).getGenotypeString());
 
                 if( vc.getGenotype(vcfSample).isHet() ){ // increment if hz
-                    logger.info("ishet");
                     results.get(bamSample).incrementHzSnps();
                     // increment concordant nbr if alt allele has read support within set limits
                     Double alleleFraction = ((double)altcount.doubleValue()) / (altcount + refCount);
-                    logger.info(alleleFraction + "(" + altcount + "/(" + altcount + "+" + refCount + ")");
                     if( alleleFraction > lowerLimit && alleleFraction < upperLimit ){
                         results.get(bamSample).incrementConcordantHzSnps();
                     }
                 }
 
             }
-            logger.info("VARIANTSSAMPLE\tREADSSAMPLE\tTOTAL_SNPS\tHZ_SNP_COUNT\tCONCORDANT_HZ_SNP_COUNT\tCONCORDANT_HZ_SNP_FRACTION");
-            for( String sample : results.keySet() ){
-                logger.info( results.get(sample).toString() );
-            }
-            logger.info("\n");
-            logger.info("\n");
 
         }
 
@@ -131,7 +119,7 @@ public class HeterozygoteConcordance extends RodWalker<Integer, Integer> {
     }
 
     public void onTraversalDone(Integer result) {
-        logger.info("Counted " + result + "variant positions from the VCF.");
+        logger.info("Traversed " + result + " variant positions from the VCF.");
         out.println("VARIANTSSAMPLE\tREADSSAMPLE\tTOTAL_SNPS\tHZ_SNP_COUNT\tCONCORDANT_HZ_SNP_COUNT\tCONCORDANT_HZ_SNP_FRACTION");
         for( String sample : results.keySet() ){
             out.println( results.get(sample).toString() );

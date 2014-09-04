@@ -194,7 +194,7 @@ You need maven to compile the GATK.
 I usually skip compiling Queue:
 
     mvn verify -P\!queue
-
+    cp ./public/external-example/target/external-example-1.0-SNAPSHOT.jar ./GenomeAnalysisTK-Klevebring.jar
 The resulting jar file is `./public/external-example/target/external-example-1.0-SNAPSHOT.jar`
 
 
