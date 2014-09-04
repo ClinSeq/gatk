@@ -5,7 +5,6 @@
 /*.vcf
 /*.txt
 /*.csh
-/.*
 /*.pdf
 /*.eval
 *.ipr
@@ -26,7 +25,7 @@ out/
 /atlassian-ide-plugin.xml
 maven-metadata-local.xml
 dependency-reduced-pom.xml
-
+.idea/*
 *.class
 
 public/sting-utils/target/sting-utils-3.1.jar
