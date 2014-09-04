@@ -2,6 +2,14 @@
 
 This is my public version of the (MIT licensed) GATK source tree with added custom walkers.
 
+
+
+
+
+
+
+
+
 ## SomaticPindelFilter
 
 Filtering of variants from reported from pindel. Performs a Fisher's Exact test for each variants and Benjamini-Hochberg adjusts all p-values. Prints variants with adjusted p < cutoff (settable).
@@ -37,12 +45,10 @@ I run pindel with a config file like so:
 
 Please refer to the [pindel website](http://gmt.genome.wustl.edu/pindel/current/) for further information on how to run pindel. Of note, if `--compact_output_limit 15` is omitted, the REF and ALT fields of the vcf file can be several Mb in size for long inversions, insertions or deletion. That results in a large and possibly unparsable vcf file (baaaaad).
 
-### Not working as expected?
-Please report any bugs in the issue tracker on this site.
 
 
 
-
+--------
 
 
 
@@ -108,7 +114,7 @@ Arguments for SelectPathogenicVariants:
 
 
 
-
+--------
 
 
 
@@ -127,7 +133,7 @@ The walker allows for multiple samples to be given within a single BAM file, and
 
 ### TL;DR
 
-    -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -I mybam.bam -o outfile.txt
+    java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -I mybam.bam -o outfile.txt
 
 ### Parameters
 
@@ -138,6 +144,40 @@ Arguments for TelomereQuant:
     -NR,--number_of_repeats <number_of_repeats>   Number of repeats of telomere sequence required for a read to be
                                                   classified as telomeric. Default 4.
 
+
+--------
+
+
+## HeterozygoteConcordance
+
+Walker to calculate the number of heterozygote SNPs in a VCF file that have read support in a BAM file.
+
+I use this to verify the identity of a tumor and normal exome or panel pairs. Variants are called in the normal sample, and then used as input (`-V`) to the walker. 
+
+The output is a table with the total number of variants, total hz variants and number of hz variants that have read support in the BAM, broken down per sample in the BAM file. 
+
+### TL;DR
+
+    java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T HeterozygoteConcordance -I tumor.bam -V normalvariants.vcf -R reference.fa -sid VcfSampleToUse -o output.txt
+
+
+### Parameters
+
+Arguments for HeterozygoteConcordance:
+
+```
+ -I,--input_file <input_file>   Input file containing sequence data (SAM or BAM) (required)
+ -sid,--VCFSample <VCFSample>   Sample ID from which to get HZ calls. Must be present in the VCF. (required)
+ -V,--variant <variant>         Input VCF file (required)
+ -o,--out <out>                 File to which output should be written
+ -md,--mindepth <mindepth>      Minimum BAM depth of a position to be considered (default 30)
+ -up,--upper <upper>            Upper limit over which hom alt GTs are called (default .9)
+ -lo,--lower <lower>            Lower limit over which hom ref GTs are called (default .1)
+```
+
+
+
+--------
 
 
 
@@ -165,6 +205,8 @@ The resulting jar file is `./public/external-example/target/external-example-1.0
 
 
 
+## Not working as expected?
+Please report any bugs in the issue tracker on this site.
 
 
 ## See also
