@@ -24,10 +24,10 @@ import java.util.Map;
 
 public class TelomereQuant extends ReadWalker<Integer, Long> implements NanoSchedulable {
     private class TelomereQuantResult{
-        private int totalReadCount;
-        private int telomereReadCount;
-        private int totalBases;
-        private int telomereSequenceCount;
+        private long totalReadCount;
+        private long telomereReadCount;
+        private long totalBases;
+        private long telomereSequenceCount;
 
         public TelomereQuantResult( ){
             this.totalReadCount = 0;
@@ -36,23 +36,23 @@ public class TelomereQuant extends ReadWalker<Integer, Long> implements NanoSche
             this.telomereSequenceCount = 0;
         }
         // getters
-        public int getTotalReadCount(){
+        public long getTotalReadCount(){
             return( this.totalReadCount );
         }
-        public int getTotalBases(){
+        public long getTotalBases(){
             return( this.totalBases );
         }
-        public int getTelomereReadCount(){
+        public long getTelomereReadCount(){
             return( this.telomereReadCount );
         }
-        public int getTotalTelomereSequenceCount(){
+        public long getTotalTelomereSequenceCount(){
             return( this.telomereSequenceCount );
         }
         // incrementors
-        public int incrementTotalReadCount(){
+        public long incrementTotalReadCount(){
             return( this.totalReadCount++ );
         }
-        public int incrementTelomereReadCount(){
+        public long incrementTelomereReadCount(){
             return( this.telomereReadCount++ );
         }
         public void incrementTelomereSeqCount(Integer count){
