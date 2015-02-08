@@ -21,6 +21,7 @@ import org.broadinstitute.gatk.utils.commandline.*;
 import org.broadinstitute.gatk.utils.exceptions.UserException;
 import org.broadinstitute.gatk.utils.variant.GATKVCFUtils;
 import org.broadinstitute.gatk.utils.variant.GATKVariantContextUtils;
+import org.dakl.exceptions.IncorrectNumberOfAlternativeAllelesException;
 
 import java.util.*;
 
@@ -126,76 +127,90 @@ public class VariantAnnotator2000  extends RodWalker<Integer, Integer> {
             return 0;
 
         Collection<VariantContext> annotatedVCs = VCs;
+        try {
+            // if the reference base is not ambiguous, we can annotate
+            Map<String, AlignmentContext> stratifiedContexts;
+            if (BaseUtils.simpleBaseToBaseIndex(ref.getBase()) != -1) {
+                stratifiedContexts = AlignmentContextUtils.splitContextBySampleName(context.getBasePileup());
+                annotatedVCs = new ArrayList<VariantContext>(VCs.size());
+                for (VariantContext vc : VCs) {
+                    logger.info(vc.getChr() + " " + ref.getLocus().getStart() + " " + vc.getReference() + " " + vc.getAlternateAllele(0));
 
-        // if the reference base is not ambiguous, we can annotate
-        Map<String, AlignmentContext> stratifiedContexts;
-        if ( BaseUtils.simpleBaseToBaseIndex(ref.getBase()) != -1 ) {
-            stratifiedContexts = AlignmentContextUtils.splitContextBySampleName(context.getBasePileup());
-            annotatedVCs = new ArrayList<VariantContext>(VCs.size());
-            for ( VariantContext vc : VCs ){
-                logger.info(vc.getChr() + " " + ref.getLocus().getStart() + " " + vc.getReference() + " " + vc.getAlternateAllele(0));
+                    HashMap<String, Object> attributesToAdd = new HashMap<String, Object>();
 
-                HashMap<String,Object> attributesToAdd = new HashMap<String, Object>();
+                    if (vc.getAlternateAlleles().size() != 1) {
+                        throw new IncorrectNumberOfAlternativeAllelesException(vc.toString(), variantCollection.variants.getName());
+                    }
 
-                for(VAExpression expr : requestedExpressions){
-                    final Collection<VariantContext> expressionVCs = tracker.getValues(expr.binding, ref.getLocus());
-                    if ( expressionVCs.size() == 0 )
-                        continue;
+                    for (VAExpression expr : requestedExpressions) {
+                        final Collection<VariantContext> expressionVCs = tracker.getValues(expr.binding, ref.getLocus());
+                        if (expressionVCs.size() == 0)
+                            continue;
 
-                    for(VariantContext expressionVC: expressionVCs){
+                        for (VariantContext expressionVC : expressionVCs) {
+                            if (expressionVC.getAlternateAlleles().size() != 1) {
+                                throw new IncorrectNumberOfAlternativeAllelesException(vc.toString(), expr.binding.getName());
+                            }
+                            // require chr, pos,ref and alt alleles to be identical in order to annotate
+                            if (expressionVC.getChr().equals(vc.getChr()) &&
+                                    expressionVC.getStart() == vc.getStart() &&
+                                    expressionVC.getReference().equals(vc.getReference()) &&
+                                    expressionVC.getAlternateAllele(0).equals(vc.getAlternateAllele(0))) {
+
+
+
+                                String attr = (String) expressionVC.getCommonInfo().getAttribute(expr.fieldName, "");
+                                String key = expr.fullName;
+                                logger.info("Added INFO: " + key + "=" + attr);
+                                if (attributesToAdd.containsKey(key)) {
+                                    logger.info("Attribute present. Concatenating value.");
+                                    String newAttr = attributesToAdd.get(key) + "|" + attr;
+                                    attributesToAdd.put(key, newAttr);
+
+                                } else {
+                                    logger.info("Attribute not present. Adding it. ");
+                                    attributesToAdd.put(key, attr);
+                                }
+                            }
+                        }
+                    }
+
+                    String rsid = vc.getID();
+                    final Collection<VariantContext> dbsnpVCs = tracker.getValues(dbSNPBinding, ref.getLocus());
+                    for (VariantContext dbsnpVC : dbsnpVCs) {
                         // require chr, pos,ref and alt alleles to be identical in order to annotate
-                        if(expressionVC.getChr().equals(vc.getChr()) &&
-                           expressionVC.getStart() == vc.getStart() &&
-                           expressionVC.getReference().equals(vc.getReference()) &&
-                           expressionVC.getAlternateAllele(0).equals(vc.getAlternateAllele(0)) ){
+                        if (dbsnpVC.getChr().equals(vc.getChr()) &&
+                                dbsnpVC.getStart() == vc.getStart() &&
+                                dbsnpVC.getReference().equals(vc.getReference()) &&
+                                dbsnpVC.getAlternateAllele(0).equals(vc.getAlternateAllele(0))) {
 
-                            String attr = (String)expressionVC.getCommonInfo().getAttribute(expr.fieldName, "");
-                            String key = expr.fullName;
-                            logger.info("Added INFO: "+ key + "="+attr);
-                            if(attributesToAdd.containsKey(key)){
-                                logger.info("Attribute present. Concatenating value.");
-                                String newAttr = attributesToAdd.get(key) + "|" + attr;
-                                attributesToAdd.put(key, newAttr);
-                            }else{
-                                logger.info("Attribute not present. Adding it. ");
-                                attributesToAdd.put(key, attr);
+                            if (!dbsnpVC.emptyID()) { // if there's no ID in dbSNP, use input files ID
+                                if (rsid.equals(".")) {
+                                    rsid = dbsnpVC.getID();
+                                } else if (!rsid.equals(".") && ALWAYS_APPEND_DBSNP_ID) {
+                                    rsid = dbsnpVC.getID();
+                                }
                             }
                         }
                     }
-                }
 
-                String rsid = vc.getID();
-                final Collection<VariantContext> dbsnpVCs = tracker.getValues(dbSNPBinding, ref.getLocus());
-                for(VariantContext dbsnpVC: dbsnpVCs) {
-                    // require chr, pos,ref and alt alleles to be identical in order to annotate
-                    if (dbsnpVC.getChr().equals(vc.getChr()) &&
-                            dbsnpVC.getStart() == vc.getStart() &&
-                            dbsnpVC.getReference().equals(vc.getReference()) &&
-                            dbsnpVC.getAlternateAllele(0).equals(vc.getAlternateAllele(0))) {
-
-                        if( !dbsnpVC.emptyID() ){ // if there's no ID in dbSNP, use input files ID
-                            if( rsid.equals(".") ){
-                                rsid = dbsnpVC.getID();
-                            }else if(!rsid.equals(".") && ALWAYS_APPEND_DBSNP_ID){
-                                rsid = dbsnpVC.getID();
-                            }
+                    if (attributesToAdd.isEmpty()) {
+                        vcfWriter.add(vc);
+                    } else {
+                        logger.info("Added annotations...");
+                        for (String key : vc.getAttributes().keySet()) {
+                            attributesToAdd.put(key, vc.getAttribute(key));
                         }
+                        VariantContext newVC = new VariantContextBuilder(vc).id(rsid).attributes(attributesToAdd).make();
+                        vcfWriter.add(newVC);
                     }
-                }
 
-                if(attributesToAdd.isEmpty()){
-                    vcfWriter.add(vc);
-                }else{
-                    logger.info("Added annotations...");
-                    for(String key : vc.getAttributes().keySet()) {
-                        attributesToAdd.put(key, vc.getAttribute(key));
-                    }
-                    VariantContext newVC = new VariantContextBuilder(vc).id(rsid).attributes(attributesToAdd).make();
-                    vcfWriter.add(newVC);
                 }
 
             }
-
+        } catch(IncorrectNumberOfAlternativeAllelesException e )
+        {
+            System.exit(1);
         }
 
         return 1;
