@@ -4,10 +4,81 @@
 
 This is my public version of the (MIT licensed) GATK source tree with added custom walkers.
 
+## VariantAnnotationResourceCleaner
+
+VariantAnnotationResourceCleaner cleans a "resource VCF" (VCF with no genotypes, but only INFO fields) by splitting multiallelic variants to separate lines. The fields to keep from the original file can be specified using `-k`. Note that fields of type `R` (for example Number=R) are not supported, since the version of htsjdk that ships with GATK (htsjdk 1.120 ships with GATK 3.3) does not support `VCFHeaderLineCount.R`. 
+
+### TL;DR
+
+```bash
+java -jar GenomeAnalysisTK-Klevebring.jar -T VariantAnnotationResourceCleaner -R ~/genome_files/human_g1k_v37_decoy.fasta -V ~/projects/variant-tests/exac-head.vcf -k AN -k AC -k AC_AFR -k DP -k DB
+```
+
+### Parameters
+
+```bash
+ -V,--variant <variant>   Input VCF file
+ -k,--keys <keys>         INFO keys to keep when outputting variants
+ -o,--out <out>           File to which variants should be written
+```
+
+Commonly used keys are:
+
+ExAC: 
+```
+-k DB -k DP -k AC -k AC_AFR -k AC_AMR -k AC_EAS -k AC_FIN -k AC_NFE -k AC_OTH -k AC_SAS -k AF -k AN -k AN_AFR -k AN_AMR -k AN_EAS -k AN_FIN -k AN_NFE -k AN_OTH -k AN_SAS
+```
+
+
+
+--------
 
 
 
 
+## VariantAnnotator2000
+
+*Party like it's 1999 + 1.*
+
+VariantAnnotator with saner behavior. Only supports `--dbsnp`, `--resource` and `--expression`. 
+
+### TL;DR
+
+```bash
+java -jar GenomeAnalysisTK-Klevebring.jar -T VariantAnnotator2000 \
+-V public/gatk-engine/src/test/resources/dakl/my.vcf \
+-R ~/genome_files/human_g1k_v37_decoy.fasta \
+--resource:clinvar public/gatk-engine/src/test/resources/dakl/cv.vcf \
+--dbsnp public/gatk-engine/src/test/resources/dakl/db.vcf \
+-E clinvar.CLNACC -E clinvar.CLNSIG \
+-L public/gatk-engine/src/test/resources/dakl/my.vcf -o ~/tmp/test.vcf
+```
+
+### Parameters
+
+```bash
+ -V,--variant <variant>                       Input VCF file
+ -resource,--resource <resource>              External resource VCF file
+ -dbsnp,--dbsnp <dbsnp>                       dbSNP VCF
+ -alwaysAppendDbsnpId,--alwaysAppendDbsnpId   Append the dbSNP ID even when the variant VCF already has the ID field 
+                                              populated
+ -o,--out <out>                               File to which variants should be written
+ -E,--expression <expression>                 One or more specific expressions to apply to variant calls
+
+```
+
+This Walker borrows code from VariantAnnotator and VariantAnnotatorEngine in core GATK. It is modified for better behaviour in two ways: 
+
+1. To annotate from a resource file, it requires chr, pos, ref and alt to be identical 
+2. If an allele is present on multiple rows in an input resource file, VariantAnnotator2000 will concatenate the selected fields (with a pipe, `|`). The GATK VariantAnnotator walker (as of v3.3) uses a single row randomly. 
+
+* Further details: http://gatkforums.broadinstitute.org/discussion/5125/variantannotator-and-multiple-records-in-resources#latest
+* https://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_annotator_VariantAnnotator.php#--expression
+
+
+
+
+--------
 
 
 
@@ -20,8 +91,6 @@ Filtering of variants from reported from pindel. Performs a Fisher's Exact test 
     java -jar GenomeAnalysisTK.jar -T SomaticPindelFilter -V pindel_variants.vcf -o out.vcf -TID TUMOR_ID -NID NORMAL_ID -R reference.fa
 
 ### Parameters
-
-Arguments for SomaticPindelFilter:
 
      -V,--variant <variant>                                        Select variants from this VCF file
      -TID,--tumorid <tumorid>                                      Sample Name of the tumor
@@ -134,11 +203,9 @@ The walker allows for multiple samples to be given within a single BAM file, and
 
 ### TL;DR
 
-<<<<<<< HEAD
-    java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -I mybam.bam -o outfile.txt
-=======
-    -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -R reference.fa -I mybam.bam -o outfile.txt
->>>>>>> FETCH_HEAD
+```bash
+java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T TelomereQuant -R reference.fa -I mybam.bam -o outfile.txt
+```
 
 ### Parameters
 
