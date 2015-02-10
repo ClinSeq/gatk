@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=$1
+VERSION=`cat VERSION`
 
 if [[ -z "$VERSION" ]]; then
   echo "usage: make-release.sh VERSION"
