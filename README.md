@@ -88,30 +88,35 @@ Filtering of variants from reported from pindel. Performs a Fisher's Exact test 
 
 ### TL;DR
 
-    java -jar GenomeAnalysisTK.jar -T SomaticPindelFilter -V pindel_variants.vcf -o out.vcf -TID TUMOR_ID -NID NORMAL_ID -R reference.fa
+```bash
+java -jar GenomeAnalysisTK.jar -T SomaticPindelFilter -V pindel_variants.vcf -o out.vcf -TID TUMOR_ID -NID NORMAL_ID -R reference.fa
+```
 
 ### Parameters
 
-     -V,--variant <variant>                                        Select variants from this VCF file
-     -TID,--tumorid <tumorid>                                      Sample Name of the tumor
-     -NID,--normalid <normalid>                                    Sample Name of the normal
-     -o,--out <out>                                                File to which variants should be written
-     -MIN_DP_N,--minCoverageNormal <minCoverageNormal>             Minimum depth required in the normal, default 25
-     -MIN_DP_T,--minCoverageTumor <minCoverageTumor>               Minimum depth required in the tumor, default 25
-     -MAX_DP_N,--maxCoverageNormal <maxCoverageNormal>             Maximum depth required in the normal, default 1000
-     -MAX_DP_T,--maxCoverageTumor <maxCoverageTumor>               Maximum depth required in the tumor, default 1000
-     -MAX_N_FRAC,--maxNormalFraction <maxNormalFraction>           Maximum fraction allowed in the normal, default 0.15
-     -ADJ_P_CUTOFF,--AdjustedPValueCutoff <AdjustedPValueCutoff>   Cutoff for the adjusted p values, default 0.05
+```bash
+-V,--variant <variant>                                        Select variants from this VCF file
+-TID,--tumorid <tumorid>                                      Sample Name of the tumor
+-NID,--normalid <normalid>                                    Sample Name of the normal
+-o,--out <out>                                                File to which variants should be written
+-MIN_DP_N,--minCoverageNormal <minCoverageNormal>             Minimum depth required in the normal, default 25
+-MIN_DP_T,--minCoverageTumor <minCoverageTumor>               Minimum depth required in the tumor, default 25
+-MAX_DP_N,--maxCoverageNormal <maxCoverageNormal>             Maximum depth required in the normal, default 1000
+-MAX_DP_T,--maxCoverageTumor <maxCoverageTumor>               Maximum depth required in the tumor, default 1000
+-MAX_N_FRAC,--maxNormalFraction <maxNormalFraction>           Maximum fraction allowed in the normal, default 0.15
+-ADJ_P_CUTOFF,--AdjustedPValueCutoff <AdjustedPValueCutoff>   Cutoff for the adjusted p values, default 0.05
 
 Note that with a clean normal sample (like DNA from blood), `-MAX_N_FRAC` can ususally be set way lower than 0.15. The likeliehood that a sequencing error in the normal sample resulting in an indel at the exact same place as a true somatic indel in the tumor is likely very very low. The error rate of the index reads likely sets the limit for this (reads that are misclassified to the tumor sample due to low quality of the index).
 
 ### Where does the variants come from?
 
-I run pindel with a config file like so:
+I raun pindel with a config file like so:
 
-    pindel -f reference.fa -i configfile.txt -o pindelPrefix
-    pindel2vcf -P pindelPrefix --gatk_compatible -r reference.fa \
-               -R human_g1k_v37_decoy -d 20140127 -v pindel_variants.vcf --compact_output_limit 15
+```bash
+pindel -f reference.fa -i configfile.txt -o pindelPrefix
+pindel2vcf -P pindelPrefix --gatk_compatible -r reference.fa \
+           -R human_g1k_v37_decoy -d 20140127 -v pindel_variants.vcf --compact_output_limit 15
+```
 
 Please refer to the [pindel website](http://gmt.genome.wustl.edu/pindel/current/) for further information on how to run pindel. Of note, if `--compact_output_limit 15` is omitted, the REF and ALT fields of the vcf file can be several Mb in size for long inversions, insertions or deletion. That results in a large and possibly unparsable vcf file (baaaaad).
 
@@ -129,30 +134,24 @@ Filtering of variants from reported from IndelGenotyperV2 (the now very old Broa
 
 ### TL;DR
 
-    java -jar GenomeAnalysisTK.jar -T SomaticIndelDetectorFilter -V indelDetector_variants.vcf -o out.vcf -TID TUMOR_ID -NID NORMAL_ID -R reference.fa
+```bash
+java -jar GenomeAnalysisTK.jar -T SomaticIndelDetectorFilter -V indelDetector_variants.vcf -o out.vcf -TID TUMOR_ID -NID NORMAL_ID -R reference.fa
+```
 
 ### Parameters
 
-Arguments for SomaticIndelDetectorFilter:
-
-    -V,--variant <variant>                                        Select variants from this VCF file
-    -TID,--tumorid <tumorid>                                      Sample Name of the tumor
-    -NID,--normalid <normalid>                                    Sample Name of the normal
-    -o,--out <out>                                                File to which variants should be written
-    -MIN_DP_N,--minCoverageNormal <minCoverageNormal>             Minimum depth required in the normal
-    -MIN_DP_T,--minCoverageTumor <minCoverageTumor>               Minimum depth required in the tumor
-    -MAX_DP_N,--maxCoverageNormal <maxCoverageNormal>             Maximum depth required in the normal
-    -MAX_DP_T,--maxCoverageTumor <maxCoverageTumor>               Maximum depth required in the tumor
-    -MAX_N_FRAC,--maxNormalFraction <maxNormalFraction>           Maximum fraction allowed in the normal
-    -ADJ_P_CUTOFF,--AdjustedPValueCutoff <AdjustedPValueCutoff>   Cutoff for the adjusted p values
-
-
-
-
-
-
-
-
+```bash
+-V,--variant <variant>                                        Select variants from this VCF file
+-TID,--tumorid <tumorid>                                      Sample Name of the tumor
+-NID,--normalid <normalid>                                    Sample Name of the normal
+-o,--out <out>                                                File to which variants should be written
+-MIN_DP_N,--minCoverageNormal <minCoverageNormal>             Minimum depth required in the normal
+-MIN_DP_T,--minCoverageTumor <minCoverageTumor>               Minimum depth required in the tumor
+-MAX_DP_N,--maxCoverageNormal <maxCoverageNormal>             Maximum depth required in the normal
+-MAX_DP_T,--maxCoverageTumor <maxCoverageTumor>               Maximum depth required in the tumor
+-MAX_N_FRAC,--maxNormalFraction <maxNormalFraction>           Maximum fraction allowed in the normal
+-ADJ_P_CUTOFF,--AdjustedPValueCutoff <AdjustedPValueCutoff>   Cutoff for the adjusted p values
+```
 
 
 
@@ -164,23 +163,29 @@ Walker to select pathogenic variants from clinvar.
 
 To select variants from certain genes, run
 
-     java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T SelectPathogenicVariants \
-     -V public/testdata/dakl/clinvar_20140807.vcf -R ~/genome/human_g1k_v37_decoy.fasta -o ~/tmp/tmp.vcf -G BRCA1 -G BRCA2
+```bash
+java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T SelectPathogenicVariants \
+-V public/testdata/dakl/clinvar_20140807.vcf -R ~/genome/human_g1k_v37_decoy.fasta -o ~/tmp/tmp.vcf -G BRCA1 -G BRCA2
+```
 
 To select pathogenic variants from all genes, run
 
-    java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T SelectPathogenicVariants \
-    -V public/testdata/dakl/clinvar_20140807.vcf -R ~/genome/human_g1k_v37_decoy.fasta -o ~/tmp/tmp.vcf -G BRCA1 -G BRCA2
+```bash
+java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T SelectPathogenicVariants \
+-V public/testdata/dakl/clinvar_20140807.vcf -R ~/genome/human_g1k_v37_decoy.fasta -o ~/tmp/tmp.vcf -G BRCA1 -G BRCA2
+```
 
 ### Parameters
 
 Arguments for SelectPathogenicVariants:
+
+```bash
  -V,--variant <variant>      Input VCF file
  -o,--out <out>              File to which variants should be written
  -G,--genes <genes>          String of gene names from which variants are selected. Multiple allowed. If not specified,
                              all genes are selected
  -GI,--GENEINFO <GENEINFO>   Name of the field containing gene info.
-
+```
 
 
 
@@ -209,13 +214,10 @@ java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T 
 
 ### Parameters
 
-Arguments for TelomereQuant:
-
-    -o,--out <out>                                An output file created by the walker.  Will overwrite contents if file
-                                                  exists
-    -NR,--number_of_repeats <number_of_repeats>   Number of repeats of telomere sequence required for a read to be
-                                                  classified as telomeric. Default 4.
-
+```bash
+ -o,--out <out>                                An output file created by the walker.  Will overwrite contents if file exists
+ -NR,--number_of_repeats <number_of_repeats>   Number of repeats of telomere sequence required for a read to be classified as telomeric. Default 4.
+```
 
 --------
 
@@ -230,14 +232,15 @@ The output is a table with the total number of variants, total hz variants and n
 
 ### TL;DR
 
-    java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T HeterozygoteConcordance -I tumor.bam -V normalvariants.vcf -R reference.fa -sid VcfSampleToUse -o output.txt
-
+```bash
+java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T HeterozygoteConcordance -I tumor.bam -V normalvariants.vcf -R reference.fa -sid VcfSampleToUse -o output.txt
+```
 
 ### Parameters
 
 Arguments for HeterozygoteConcordance:
 
-```
+```bash
  -I,--input_file <input_file>   Input file containing sequence data (SAM or BAM) (required)
  -sid,--VCFSample <VCFSample>   Sample ID from which to get HZ calls. Must be present in the VCF. (required)
  -V,--variant <variant>         Input VCF file (required)
@@ -260,15 +263,24 @@ Arguments for HeterozygoteConcordance:
 
 You need maven to compile the GATK.
 
-    git clone https://github.com/dakl/gatk.git gatk-klevebring
-    cd gatk-klevebring
+```bash
+git clone https://github.com/dakl/gatk.git gatk-klevebring
+cd gatk-klevebring
+```
 
 I usually skip compiling Queue:
 
-    mvn verify -P\!queue
-    cp ./public/external-example/target/external-example-1.0-SNAPSHOT.jar ./GenomeAnalysisTK-Klevebring.jar
+```bash
+mvn verify -P\!queue
+```
+
 The resulting jar file is `./public/external-example/target/external-example-1.0-SNAPSHOT.jar`
 
+Give it a saner name:
+
+```bash
+cp ./public/external-example/target/external-example-1.0-SNAPSHOT.jar ./GenomeAnalysisTK-Klevebring.jar
+```
 
 
 
