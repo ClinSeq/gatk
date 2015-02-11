@@ -1,6 +1,6 @@
 # The Genome Analysis Toolkit
 
-[![Build Status](https://travis-ci.org/dakl/gatk.svg?branch=master)](https://travis-ci.org/dakl/gatk.svg?branch=master)
+[![Build Status](https://travis-ci.org/dakl/gatk.svg?branch=master)](https://travis-ci.org/dakl/gatk)
 
 This is my public version of the (MIT licensed) GATK source tree with added custom walkers.
 
