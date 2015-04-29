@@ -228,12 +228,14 @@ Walker to calculate the number of heterozygote SNPs in a VCF file that have read
 
 I use this to verify the identity of a tumor and normal exome or panel pairs. Variants are called in the normal sample, and then used as input (`-V`) to the walker. 
 
+**Note** Adding the optional parameter `-L <variant>` leads to a massive speedup, since the backend GATK engine only processes the sites passed to `-L`, instead of looping through all sites in the reference. The file passed to `-L` should be the same as that passed to `-V`. Example: `-V normalvariants.vcf -L normalvariants.vcf`.
+
 The output is a table with the total number of variants, total hz variants and number of hz variants that have read support in the BAM, broken down per sample in the BAM file. 
 
 ### TL;DR
 
 ```bash
-java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T HeterozygoteConcordance -I tumor.bam -V normalvariants.vcf -R reference.fa -sid VcfSampleToUse -o output.txt
+java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T HeterozygoteConcordance -I tumor.bam -V normalvariants.vcf -L normalvariants.vcf -R reference.fa -sid VcfSampleToUse -o output.txt
 ```
 
 ### Parameters
@@ -244,6 +246,7 @@ Arguments for HeterozygoteConcordance:
  -I,--input_file <input_file>   Input file containing sequence data (SAM or BAM) (required)
  -sid,--VCFSample <VCFSample>   Sample ID from which to get HZ calls. Must be present in the VCF. (required)
  -V,--variant <variant>         Input VCF file (required)
+ -L <variant>                   Only process variants in VCF file (gives major speedup)
  -o,--out <out>                 File to which output should be written
  -md,--mindepth <mindepth>      Minimum BAM depth of a position to be considered (default 30)
  -up,--upper <upper>            Upper limit over which hom alt GTs are called (default .9)
