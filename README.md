@@ -105,12 +105,13 @@ java -jar GenomeAnalysisTK.jar -T SomaticPindelFilter -V pindel_variants.vcf -o 
 -MAX_DP_T,--maxCoverageTumor <maxCoverageTumor>               Maximum depth required in the tumor, default 1000
 -MAX_N_FRAC,--maxNormalFraction <maxNormalFraction>           Maximum fraction allowed in the normal, default 0.15
 -ADJ_P_CUTOFF,--AdjustedPValueCutoff <AdjustedPValueCutoff>   Cutoff for the adjusted p values, default 0.05
+```
 
 Note that with a clean normal sample (like DNA from blood), `-MAX_N_FRAC` can ususally be set way lower than 0.15. The likeliehood that a sequencing error in the normal sample resulting in an indel at the exact same place as a true somatic indel in the tumor is likely very very low. The error rate of the index reads likely sets the limit for this (reads that are misclassified to the tumor sample due to low quality of the index).
 
 ### Where does the variants come from?
 
-I raun pindel with a config file like so:
+I run pindel with a config file like so:
 
 ```bash
 pindel -f reference.fa -i configfile.txt -o pindelPrefix
@@ -228,7 +229,7 @@ Walker to calculate the number of heterozygote SNPs in a VCF file that have read
 
 I use this to verify the identity of a tumor and normal exome or panel pairs. Variants are called in the normal sample, and then used as input (`-V`) to the walker. 
 
-**Note** Adding the optional parameter `-L <variant>` leads to a massive speedup, since the backend GATK engine only processes the sites passed to `-L`, instead of looping through all sites in the reference. The file passed to `-L` should be the same as that passed to `-V`. Example: `-V normalvariants.vcf -L normalvariants.vcf`.
+**Note:** Adding the optional parameter `-L <variant>` leads to a massive speedup, since the backend GATK engine only processes the sites passed to `-L`, instead of looping through all sites in the reference. The file passed to `-L` should be the same as that passed to `-V`. Example: `-V normalvariants.vcf -L normalvariants.vcf`.
 
 The output is a table with the total number of variants, total hz variants and number of hz variants that have read support in the BAM, broken down per sample in the BAM file. 
 
@@ -259,6 +260,48 @@ Arguments for HeterozygoteConcordance:
 
 
 
+
+
+
+## StupidGenotyper
+
+Walker to "genotype" given positions across multiple samples. Only bialleleic SNPs are considered, all other variants are ignored. The approach used to genotype is stupid: 
+
+* If `DP` < `min_depth_to_genotype`, then no call
+* If `FA` <= `min_hz_threshold`, call hom ref
+* If `FA` >= `max_hz_threshold`, call hom alt
+* Otherwise ( `DP` >= `min_depth_to_genotype` and `min_hz_threshold` <= `FA` < `max_hz_threshold`), call het
+
+(`DP`, depth; `FA`, fraction of reads supporting ALT)
+
+**Note:** Adding the optional parameter `-L <variant>` leads to a massive speedup, since the backend GATK engine only processes the sites passed to `-L`, instead of looping through all sites in the reference. The file passed to `-L` should be the same as that passed to `-V`. Example: `-V normalvariants.vcf -L normalvariants.vcf`.
+
+### Why would you want such a stupid genotyper?
+
+This walker can for example be used to call variants in BAM files the positions probed by the Affy6 chip. The goal is to investigate any potential sample mixups in large groups of samples. Do not consider genotypes generated from this tool correct on a single level. 
+
+### TL;DR
+
+```bash
+java -jar ./public/external-example/target/external-example-1.0-SNAPSHOT.jar -T StupidGenotyper -V affy6.vcf -L affy6.vcf -R reference.fa -I mybam.bam -I bysecondbam.bam -o output.vcf
+```
+
+### Parameters
+
+Arguments for StupidGenotyper:
+
+```bash
+Arguments for StupidGenotyper:
+ -V,--variant <variant>                   Input VCF file
+ -L <variant>                             Only process variants in VCF file (gives major  -o,--out <out>                            File to which variants should be written
+ -mindp,--min_depth_to_genotype <mindp>   Don't genotype under this coverage (default 20)
+ -min,--min_hz_threshold <min>            Minimum ALT fraction to call het (default 0.05)
+ -max,--max_hz_threshold <max>            Maximum ALT fraction to call het (default 0.95)
+```
+
+
+
+--------
 
 
 
