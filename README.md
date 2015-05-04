@@ -276,6 +276,8 @@ Walker to "genotype" given positions across multiple samples. Only bialleleic SN
 
 **Note:** Adding the optional parameter `-L <variant>` leads to a massive speedup, since the backend GATK engine only processes the sites passed to `-L`, instead of looping through all sites in the reference. The file passed to `-L` should be the same as that passed to `-V`. Example: `-V normalvariants.vcf -L normalvariants.vcf`.
 
+StupidGenotyper is both `NanoSchedulable` and `TreeReducible`, so both `-nt INT` and `-nct INT` can be used to speed things up if needed. See [the GATK parallelism docs](http://gatkforums.broadinstitute.org/discussion/1975/recommendations-for-parallelizing-gatk-tools) for details on how those flags work. 
+
 ### Why would you want such a stupid genotyper?
 
 This walker can for example be used to call variants in BAM files the positions probed by the Affy6 chip. The goal is to investigate any potential sample mixups in large groups of samples. Do not consider genotypes generated from this tool correct on a single level. 

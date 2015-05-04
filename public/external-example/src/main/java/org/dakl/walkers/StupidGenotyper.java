@@ -2,6 +2,7 @@ package org.dakl.walkers;
 
 import htsjdk.samtools.CigarElement;
 import htsjdk.variant.variantcontext.*;
+import htsjdk.variant.variantcontext.writer.AsyncVariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.vcf.*;
 import org.broadinstitute.gatk.engine.CommandLineGATK;
@@ -39,7 +40,8 @@ import java.util.*;
 @Reference(window=@Window(start=-50,stop=50))
 @Downsample(by= DownsampleType.BY_SAMPLE, toCoverage=250)
 @By(DataSource.REFERENCE)
-public class StupidGenotyper extends RodWalker<Integer, Integer> {
+
+public class StupidGenotyper extends RodWalker<Integer, Integer> implements NanoSchedulable, TreeReducible<Integer>{
     @ArgumentCollection
     protected StandardVariantContextInputArgumentCollection variantCollection = new StandardVariantContextInputArgumentCollection();
 
@@ -72,7 +74,7 @@ public class StupidGenotyper extends RodWalker<Integer, Integer> {
         hInfo.add(new VCFFormatHeaderLine("AD", 2, VCFHeaderLineType.Integer, "Alleleic depths for ref and alt"));
         hInfo.add(new VCFFormatHeaderLine("DP", 1, VCFHeaderLineType.Integer, "REF count + ALT count"));
         VCFHeader vcfHeader = new VCFHeader(hInfo, this.samples);
-
+        vcfWriter = new AsyncVariantContextWriter(vcfWriter);
         vcfWriter.writeHeader(vcfHeader);
         //System.out.println("CHR\tPOS\tSM\tREF\tALT\tDP\tREF_COUNT\tALT_COUNT");
     }
@@ -167,8 +169,6 @@ public class StupidGenotyper extends RodWalker<Integer, Integer> {
             VariantContext newVariantContext = new VariantContextBuilder(vc).genotypes(newGenotypes).make();
             vcfWriter.add(newVariantContext);
 
-
-
         }
 
         return 1;
@@ -186,6 +186,7 @@ public class StupidGenotyper extends RodWalker<Integer, Integer> {
      * @param result  the number of loci seen.
      */
     public void onTraversalDone(Integer result) {
+        ((AsyncVariantContextWriter)vcfWriter).close(); // GROSS -- engine forces us to close our own VCF writer since we wrapped it
         logger.info("Processed " + result + " loci.\n");
     }
 
@@ -201,4 +202,8 @@ public class StupidGenotyper extends RodWalker<Integer, Integer> {
         return true;
     }
 
+    @Override
+    public Integer treeReduce(Integer lhs, Integer rhs) {
+        return lhs+rhs;
+    }
 }
