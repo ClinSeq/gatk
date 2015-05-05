@@ -62,5 +62,4 @@ public/gatk-framework/public/testdata
 
 public/gatk-framework/public/scala/qscript
 
-public/external-example/target/
-
+public/*/target
