@@ -4,36 +4,8 @@
 
 This is my public version of the (MIT licensed) GATK source tree with added custom walkers.
 
-## VariantAnnotationResourceCleaner
-
-VariantAnnotationResourceCleaner cleans a "resource VCF" (VCF with no genotypes, but only INFO fields) by splitting multiallelic variants to separate lines. The fields to keep from the original file can be specified using `-k`. Note that fields of type `R` (for example Number=R) are not supported, since the version of htsjdk that ships with GATK (htsjdk 1.120 ships with GATK 3.3) does not support `VCFHeaderLineCount.R`. 
-
-### TL;DR
-
-```bash
-java -jar GenomeAnalysisTK-Klevebring.jar -T VariantAnnotationResourceCleaner -R ~/genome_files/human_g1k_v37_decoy.fasta -V ~/projects/variant-tests/exac-head.vcf -k AN -k AC -k AC_AFR -k DP -k DB
-```
-
-### Parameters
-
-```bash
- -V,--variant <variant>   Input VCF file
- -k,--keys <keys>         INFO keys to keep when outputting variants
- -o,--out <out>           File to which variants should be written
-```
-
-Commonly used keys are:
-
-ExAC: 
-```
--k DB -k DP -k AC -k AC_AFR -k AC_AMR -k AC_EAS -k AC_FIN -k AC_NFE -k AC_OTH -k AC_SAS -k AF -k AN -k AN_AFR -k AN_AMR -k AN_EAS -k AN_FIN -k AN_NFE -k AN_OTH -k AN_SAS
-```
-
-
 
 --------
-
-
 
 
 ## VariantAnnotator2000
@@ -80,79 +52,6 @@ This Walker borrows code from VariantAnnotator and VariantAnnotatorEngine in cor
 
 --------
 
-
-
-## SomaticPindelFilter
-
-Filtering of variants from reported from pindel. Performs a Fisher's Exact test for each variants and Benjamini-Hochberg adjusts all p-values. Prints variants with adjusted p < cutoff (settable).
-
-### TL;DR
-
-```bash
-java -jar GenomeAnalysisTK.jar -T SomaticPindelFilter -V pindel_variants.vcf -o out.vcf -TID TUMOR_ID -NID NORMAL_ID -R reference.fa
-```
-
-### Parameters
-
-```bash
--V,--variant <variant>                                        Select variants from this VCF file
--TID,--tumorid <tumorid>                                      Sample Name of the tumor
--NID,--normalid <normalid>                                    Sample Name of the normal
--o,--out <out>                                                File to which variants should be written
--MIN_DP_N,--minCoverageNormal <minCoverageNormal>             Minimum depth required in the normal, default 25
--MIN_DP_T,--minCoverageTumor <minCoverageTumor>               Minimum depth required in the tumor, default 25
--MAX_DP_N,--maxCoverageNormal <maxCoverageNormal>             Maximum depth required in the normal, default 1000
--MAX_DP_T,--maxCoverageTumor <maxCoverageTumor>               Maximum depth required in the tumor, default 1000
--MAX_N_FRAC,--maxNormalFraction <maxNormalFraction>           Maximum fraction allowed in the normal, default 0.15
--ADJ_P_CUTOFF,--AdjustedPValueCutoff <AdjustedPValueCutoff>   Cutoff for the adjusted p values, default 0.05
-```
-
-Note that with a clean normal sample (like DNA from blood), `-MAX_N_FRAC` can ususally be set way lower than 0.15. The likeliehood that a sequencing error in the normal sample resulting in an indel at the exact same place as a true somatic indel in the tumor is likely very very low. The error rate of the index reads likely sets the limit for this (reads that are misclassified to the tumor sample due to low quality of the index).
-
-### Where does the variants come from?
-
-I run pindel with a config file like so:
-
-```bash
-pindel -f reference.fa -i configfile.txt -o pindelPrefix
-pindel2vcf -P pindelPrefix --gatk_compatible -r reference.fa \
-           -R human_g1k_v37_decoy -d 20140127 -v pindel_variants.vcf --compact_output_limit 15
-```
-
-Please refer to the [pindel website](http://gmt.genome.wustl.edu/pindel/current/) for further information on how to run pindel. Of note, if `--compact_output_limit 15` is omitted, the REF and ALT fields of the vcf file can be several Mb in size for long inversions, insertions or deletion. That results in a large and possibly unparsable vcf file (baaaaad).
-
-
-
-
---------
-
-
-
-
-## SomaticIndelDetectorFilter
-
-Filtering of variants from reported from IndelGenotyperV2 (the now very old Broad Cancer tool). Performs a Fisher's Exact test for each variants and Benjamini-Hochberg adjusts all p-values. Prints variants with adjusted p < cutoff (settable).
-
-### TL;DR
-
-```bash
-java -jar GenomeAnalysisTK.jar -T SomaticIndelDetectorFilter -V indelDetector_variants.vcf -o out.vcf -TID TUMOR_ID -NID NORMAL_ID -R reference.fa
-```
-
-### Parameters
-
-```bash
--V,--variant <variant>                                        Select variants from this VCF file
--TID,--tumorid <tumorid>                                      Sample Name of the tumor
--NID,--normalid <normalid>                                    Sample Name of the normal
--o,--out <out>                                                File to which variants should be written
--MIN_DP_N,--minCoverageNormal <minCoverageNormal>             Minimum depth required in the normal
--MIN_DP_T,--minCoverageTumor <minCoverageTumor>               Minimum depth required in the tumor
--MAX_DP_N,--maxCoverageNormal <maxCoverageNormal>             Maximum depth required in the normal
--MAX_DP_T,--maxCoverageTumor <maxCoverageTumor>               Maximum depth required in the tumor
--MAX_N_FRAC,--maxNormalFraction <maxNormalFraction>           Maximum fraction allowed in the normal
--ADJ_P_CUTOFF,--AdjustedPValueCutoff <AdjustedPValueCutoff>   Cutoff for the adjusted p values
-```
 
 
 
